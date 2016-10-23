@@ -1,6 +1,6 @@
-# == Class: python
+# = Class: python::pip
 #
-# Full description of class python here.
+# Description
 #
 # === Parameters
 #
@@ -23,8 +23,6 @@
 #
 # === Examples
 #
-# include python
-# python::pip{ 'python_pip': }
 #
 # === Authors
 #
@@ -34,18 +32,37 @@
 #
 # Copyright 2016 Matthew Hansen
 #
-class python  () {
+define python::pip ($project = $title) {
 
-  # install php package
-  package { 'python':
-    require => Exec['apt-update'],
+  # install php-fpm package
+  package { 'python-dev':
+    require => Package['python'],
     ensure  => installed,
   }
 
-  # install php package
-  package { 'python3':
-    require => Exec['apt-update'],
+  # install php-fpm package
+  package { 'python-pip':
+    require => Package['python'],
     ensure  => installed,
   }
 
+  exec { "pip-upgrade":
+    path    => "/bin:/usr/bin",
+    command => "pip install --upgrade pip",
+    require => Package['python-pip'],
+  }
+
+  exec { "psutil":
+    path    => "/bin:/usr/bin",
+    command => "pip install psutil",
+    # require  => Package['python-pip'],
+    require => Exec['pip-upgrade'],
+  }
+
+  exec { "pip install psutil --upgrade":
+    path    => "/bin:/usr/bin",
+    command => "pip install psutil --upgrade",
+    # require => Package['psutil'],
+    require => Exec['psutil'],
+  }
 }
